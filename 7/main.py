@@ -7,10 +7,8 @@ SPLIT = "^"
 AIR = "."
 
 
-""" Part 1 """
-
-
 def solve_part1(lines: list) -> int:
+    """Part 1 count # of splits"""
     data = [list(x.strip()) for x in lines]
 
     beam_points = []
@@ -39,11 +37,9 @@ def solve_part1(lines: list) -> int:
     return split_counter
 
 
-""" Part 2 """
-
-def solve_part_2(lines: list) -> int:
-    data = [list(x.strip() for x in lines)]
-    row_count = len(data)
+def solve_part2(lines: list) -> int:
+    """Part 2 count total time lines."""
+    data = [list(x.strip()) for x in lines]
 
     start_col = data[0].index(START)
 
@@ -52,8 +48,13 @@ def solve_part_2(lines: list) -> int:
 
     @cache
     def dp(row_idx: int, col_idx: int) -> int:
-        """Number of paths starting at row_idx/col_idx"""
+        """Number of paths starting at row_idx/col_idx, memoize with @cache."""
+        # At the end.
+        if row_idx == len(split_rows):
+            return 1
+
         cur_row = split_rows[row_idx]
+        print(f"Row idx: {row_idx}, col_idx: {col_idx}")
         worlds = 0
 
         if cur_row[col_idx] == SPLIT:
@@ -69,44 +70,15 @@ def solve_part_2(lines: list) -> int:
     # We know where the first splitter will be. First row at START col.
     return dp(0, start_col)
 
-"""
-def old_solve_part2(lines: list) -> int:
-    exec_count = 50_000_000
-    chunksize = 1000
-    data = [list(x.strip()) for x in lines]
-    start_row = data.pop(0)
-    start = [i for i, x in enumerate(start_row) if x == START].pop()
-    print(f"Path starts on row 0 col {start}")
-
-    # clean rows with no splits to shorten loops.
-    data = [x for x in data if SPLIT in x]
-
-    work = partial(_sub_solve_part2, data, start)
-
-    with Pool(processes=cpu_count()) as pool:
-        results = pool.map(work, range(exec_count), chunksize=chunksize)
-    return len(set(results))
-
-
-def _old_sub_solve_part2(data: list, start: int, *args, **kwargs) -> str:
-    beam_point = start
-    path = []
-    for row in data:
-        if SPLIT not in row:
-            continue
-        if row[beam_point] == SPLIT:
-            beam_point += random.choice((-1, 1))
-        path.append(beam_point)
-    return ",".join(map(str, path))
-"""
-
 
 def test_e2e_part1():
+    """Test part 1 solution."""
     with open("test_input.txt", "r") as fp:
         assert solve_part1(fp.readlines()) == 21
 
 
 def test_e2e_part2():
+    """Test part 2 solution."""
     with open("test_input.txt", "r") as fp:
         assert solve_part2(fp.readlines()) == 40
 
